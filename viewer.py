@@ -1,6 +1,8 @@
+
 import struct
 from PIL import Image
 import ImageEnhance
+
 im = Image.new("RGB", (719,1440))
 pixels = im.load()
 ff = []
@@ -14,14 +16,15 @@ with open("mean.dat", "rb") as t:
     while byte != "":
         # Do stuff with byte.
 	try:
-		tb = t.read(4)
-		if len(tb) == 0:
-			print "end of target data"
-			break
-        	ftar ,  = struct.unpack('<f', tb)
-		ff_target.append(ftar)
+            tb = t.read(4)
+            if len(tb) == 0:
+                print "end of target data"
+                break
+            ftar ,  = struct.unpack('<f', tb)
+            ff_target.append(ftar)
 	except EOFError:
-		print "done reading target data"
+            print "done reading target data"
+
 
 #target mean
 print "Read %s target values " % len(ff)
@@ -37,14 +40,14 @@ with open("MF_gpu.dat", "rb") as f:
     while byte != "":
         # Do stuff with byte.
 	try:
-		b = f.read(4)
-		if len(b) == 0:
-			print "end of data"
-			break
-        	flo ,  = struct.unpack('<f', b)
-		ff.append(flo)
+            b = f.read(4)
+            if len(b) == 0:
+                print "end of data"
+                break
+            flo ,  = struct.unpack('<f', b)
+            ff.append(flo)
 	except EOFError:
-		print "done reading results"
+            print "done reading results"
 print "Read %s res values " % len(ff)
 mean = sum(ff)/len(ff)
 print "mean %s" % mean
@@ -55,16 +58,19 @@ for i in range(im.size[0]):    # for every pixel:
 	fval = ff.pop()
 	
 	if fval > threshold:
-  		pixels[i,j] = 255, 255, 255
+            pixels[i,j] = 255, 255, 255
 	elif abs(fval-tmean) > target_epsi:
-		pixels[i,j] = 83, 128, 17
+            #		pixels[i,j] = 83, 128, 17
+            pixels[i,j] = 200, 128, 17
 	else:
-		pixels[i,j] = 90, 90, 90
-
+            pixels[i,j] = 90, 90, 90
 
 
 im.show()
+
 im.save("img.png", format="PNG")	
+
+
 
 
 
