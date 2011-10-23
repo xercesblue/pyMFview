@@ -40,7 +40,7 @@ def viewer(argv):
     mean_file = None
     threshold = 0.5
     for o, a in optlist:
-        print o, a
+   #    print o, a
     
         if o in ("-i", "--input") and a:
              input = a
@@ -77,16 +77,23 @@ def viewer(argv):
        usage()
        sys.exit(2)
    
+    print "Input: ", input
+    print "Output:", output
+    if mean_file:
+        print "Mean File: ", mean_file
+    else:
+        print "Threshold: ", threshold
     # Load image
     pixels = im.load()
     data_values = []
     target_epsi = 0.01
-    tmean_adjust = 0.009
+    mean_adjust = 0.009
     mean_values = []
-
+    tmean = threshold
  
     # Check command line arguments
     # Read Target Mean
+  
     if mean_file:
         try:
             with open(mean_file, "rb") as t:
@@ -108,7 +115,7 @@ def viewer(argv):
                 tmean = sum(mean_values)/len(mean_values)
 
                 print "Target mean calculated at %s" % tmean
-                threshold =  tmean-tmean_adjust
+                threshold =  tmean-mean_adjust
            
         except IOError:
             print "File not found", mean_file
@@ -126,7 +133,7 @@ def viewer(argv):
                 try:
                     b = f.read(4)
                     if len(b) == 0:
-                        print "End of data set"
+                        print "Done reading data set"
                         break
                     meanval ,  = struct.unpack('<f', b)
                     data_values.append(meanval)
@@ -140,16 +147,13 @@ def viewer(argv):
     mean = sum(data_values)/len(data_values)
     print "Data mean %s" % mean
 
-
-    print "mean -> threshold delta %s" % (mean-threshold)
     for i in range(im.size[0]):    # for every pixel:
         for j in range(im.size[1]):
-            fval = ff.pop()
+            fval = data_values.pop()
 
             if fval > threshold:
                 pixels[i,j] = 255, 255, 255
-            elif abs(fval-tmean) > target_epsi:
-                #		pixels[i,j] = 83, 128, 17
+            elif abs(fval-mean) > target_epsi:
                 pixels[i,j] = 200, 128, 17
             else:
                 pixels[i,j] = 90, 90, 90
